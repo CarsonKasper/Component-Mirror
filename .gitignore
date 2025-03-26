@@ -1,0 +1,19 @@
+# Ignore Python cache files
+__pycache__/
+*.pyc
+
+# Ignore VSCode settings (optional, but common)
+.vscode/
+
+# OS-generated junk files
+.DS_Store
+Thumbs.db
+
+# Fusion backup artifacts (just in case)
+*.bak
+*.tmp
+
+# Node assets (if using palettes with JS tooling later)
+node_modules/
+dist/
+build/
