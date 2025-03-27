@@ -7,9 +7,9 @@ from .componentMirror import entry as componentMirror
 
 # Add the command modules to this list
 commands = [
+    componentMirror,
     unlinkedCopy,
     flipComponent,
-    componentMirror
 ]
 
 def start():
