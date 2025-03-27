@@ -1,3 +1,7 @@
 from . import entry
 
-componentMirror = entry.Command()  # replace name for each command
+def start():
+    entry.start()
+
+def stop():
+    entry.stop()

@@ -6,13 +6,16 @@ import os
 app = adsk.core.Application.get()
 ui = app.userInterface
 
+# 🛠 Global to prevent garbage collection
+cmd_instance = None
+
 class Command:
     def __init__(self):
         self.id = 'flipComponent'
         self.name = 'Flip Component'
-        self.tooltip = 'Flips the selected component over the selected plane'
+        self.tooltip = 'Flips the selected component'
 
-        # ✅ Absolute path to resources folder
+        # Absolute path to the resources folder
         self.resources = os.path.join(os.path.dirname(__file__), 'resources')
         if not os.path.isdir(self.resources):
             self.resources = ''  # fallback if missing
@@ -52,7 +55,9 @@ class CommandCreatedHandler(adsk.core.CommandCreatedEventHandler):
 
 def start():
     try:
-        cmd = Command()
+        global cmd_instance
+        cmd_instance = Command()
+        cmd = cmd_instance
 
         # Delete old definition if exists
         cmd_def = ui.commandDefinitions.itemById(cmd.id)
@@ -68,11 +73,9 @@ def start():
         on_command_created = CommandCreatedHandler(cmd)
         cmd_def.commandCreated.add(on_command_created)
 
-        # ✅ Get the workspace and its toolbarPanels list
+        # Create or get custom panel in Utilities tab
         workspace = ui.workspaces.itemById(cmd.workspace)
         toolbar_panels = workspace.toolbarPanels
-
-        # ✅ Create or get custom panel in Utilities tab
         panel = toolbar_panels.itemById(cmd.panel)
         if not panel:
             panel = toolbar_panels.add(cmd.panel, 'Component Mirror', cmd.tab, False)
@@ -80,10 +83,6 @@ def start():
         # Add to panel as main button
         if not panel.controls.itemById(cmd.id):
             panel.controls.addCommand(cmd_def, '', False)
-        else:
-            # Fusion may auto-add to dropdown when adding to panel — avoid duplication
-            return
-
 
     except:
         ui.messageBox('Failed to start command:\n{}'.format(traceback.format_exc()))
