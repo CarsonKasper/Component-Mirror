@@ -1,14 +1,15 @@
 {
-	"autodeskProduct":	"Fusion",
-	"type":	"addin",
-	"id":	"903676d9-67ac-415f-9e46-15b37084a781",
-	"author":	"Carson Kasper",
-	"description":	{
-		"":	"Lets you mirror a component including all of it's sketchs. Creates a new fully unlinked copy of what your mirroring."
-	},
-	"version":	"Beta",
-	"runOnStartup":	false,
-	"supportedOS":	"windows|mac",
-	"editEnabled":	true,
-	"iconFilename":	"AddInIcon.svg"
+  "autodeskProduct": "Fusion",
+  "type": "addin",
+  "id": "903676d9-67ac-415f-9e46-15b37084a781",
+  "author": "Carson Kasper",
+  "description": {
+    "": "Lets you mirror a component including all of its sketches. Creates a new fully unlinked copy of what you're mirroring."
+  },
+  "version": "Beta",
+  "runOnStartup": false,
+  "supportedOS": "windows|mac",
+  "editEnabled": true,
+  "iconFilename": "AddInIcon.svg",
+  "main": "Component Mirror.py"
 }
