@@ -3,11 +3,10 @@ import adsk.fusion
 import traceback
 import os
 
+from ...lib import fusionAddInUtils as futil
+
 app = adsk.core.Application.get()
 ui = app.userInterface
-
-# 🛠 Global to prevent garbage collection
-cmd_instance = None
 
 class Command:
     def __init__(self):
@@ -15,14 +14,13 @@ class Command:
         self.name = 'Component Mirror'
         self.tooltip = 'Duplicates and flips the selected component'
 
-        # Absolute path to the resources folder
         self.resources = os.path.join(os.path.dirname(__file__), 'resources')
         if not os.path.isdir(self.resources):
-            self.resources = ''  # fallback if missing
+            self.resources = ''
 
         self.workspace = 'FusionSolidEnvironment'
         self.panel = 'ComponentMirrorPanel'
-        self.tab = 'ToolsTab'  # Utilities tab
+        self.tab = 'ToolsTab'
         self.command_control_id = None
         self.command_definition = None
 
@@ -32,7 +30,6 @@ class Command:
     def on_create(self, command: adsk.core.Command, inputs: adsk.core.CommandInputs):
         pass
 
-# Event handler for command execution
 class ExecuteHandler(adsk.core.CommandEventHandler):
     def __init__(self, command_obj):
         super().__init__()
@@ -41,7 +38,6 @@ class ExecuteHandler(adsk.core.CommandEventHandler):
     def notify(self, args):
         self.command_obj.on_execute(args)
 
-# Event handler for command creation
 class CommandCreatedHandler(adsk.core.CommandCreatedEventHandler):
     def __init__(self, command_obj):
         super().__init__()
@@ -50,42 +46,40 @@ class CommandCreatedHandler(adsk.core.CommandCreatedEventHandler):
     def notify(self, args):
         command = args.command
         inputs = command.commandInputs
-        command.execute.add(ExecuteHandler(self.command_obj))
+
+        execute_handler = ExecuteHandler(self.command_obj)
+        futil.add_handler(execute_handler)
+        command.execute.add(execute_handler)
+
         self.command_obj.on_create(command, inputs)
 
 def start():
     try:
-        global cmd_instance
-        cmd_instance = Command()
-        cmd = cmd_instance
+        cmd = Command()
 
-        # Delete old definition if exists
         cmd_def = ui.commandDefinitions.itemById(cmd.id)
         if cmd_def:
             cmd_def.deleteMe()
 
-        # Create new command definition with icon
         cmd_def = ui.commandDefinitions.addButtonDefinition(
             cmd.id, cmd.name, cmd.tooltip, cmd.resources
         )
 
-        # Hook up event
         on_command_created = CommandCreatedHandler(cmd)
+        futil.add_handler(on_command_created)
         cmd_def.commandCreated.add(on_command_created)
 
-        # Create or get custom panel in Utilities tab
         workspace = ui.workspaces.itemById(cmd.workspace)
         toolbar_panels = workspace.toolbarPanels
         panel = toolbar_panels.itemById(cmd.panel)
         if not panel:
             panel = toolbar_panels.add(cmd.panel, 'Component Mirror', cmd.tab, False)
 
-        # Add to panel as main button
         if not panel.controls.itemById(cmd.id):
             panel.controls.addCommand(cmd_def, '', False)
 
     except:
-        ui.messageBox('Failed to start command:\n{}'.format(traceback.format_exc()))
+        futil.handle_error('start')
 
 def stop():
     try:
@@ -109,4 +103,4 @@ def stop():
             cmd_def.deleteMe()
 
     except:
-        pass
+        futil.handle_error('stop')
